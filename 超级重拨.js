@@ -22,7 +22,7 @@ const username = 'dd';
 const password = 'dddddddd';
 const cmd_get_ipv4 = '/ip address print where interface=pppoe-out1';
 const cmd_reconnect = '/interface disable pppoe-out1;/interface enable pppoe-out1';
-const hass_webhook = 'http://hassip:8123/api/webhook/restartmodem';
+const hass_webhook = 'http://hassip:8123/api/webhook/rebootmodem';
 
 let previousIPv4 = '';   // 上一次获取的IPv4地址
 let currentIPv4 = '';    // 本次获取到的IPv4地址
