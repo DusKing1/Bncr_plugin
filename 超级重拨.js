@@ -43,50 +43,49 @@ module.exports = async s => {
         // 首先获取当前IPv4地址
         previousIPv4 = await getIPv4();
         const maskedPreviousIP = maskIPv4(previousIPv4);
-        console.log('当前PPPOE拨号获取到的IPv4地址:', maskedPreviousIP);
+        console.log('当前PPPOE拨号获取到的IPv4地址:', previousIPv4);
         await s.reply('当前PPPOE拨号获取到的IPv4地址: ' + maskedPreviousIP);
-        sysMethod.push({
-            platform: 'HumanTG',
-            groupId: logGroupId,// fixme: 修改为你的群组ID
-            msg: '超级重拨前IPv4地址: ' + maskedPreviousIP,
-            type: 'text',
-        });
+        // sysMethod.push({
+        //     platform: 'HumanTG',
+        //     groupId: logGroupId,// fixme: 修改为你的群组ID
+        //     msg: '超级重拨前IPv4地址: ' + maskedPreviousIP,
+        //     type: 'text',
+        // });
 
         console.log('现在将尝试进行PPPOE重拨');
-        await s.reply({ msg:'现在将尝试进行PPPOE重拨', dontEdit: true });
+        await s.reply({ msg: '现在将尝试进行PPPOE重拨', dontEdit: true });
         await reconnectPPP();   // 执行重拨
         await new Promise(resolve => setTimeout(resolve, 2000)); // 等待 2 秒钟
         currentIPv4 = await getIPv4();
 
+        while (currentIPv4 === previousIPv4 && retryCount < 3) {
+            retryCount++;
+            console.log('重拨未能更换IPv4，尝试再次进行重拨: ', retryCount);
+            await s.reply('重拨未能更换IPv4，尝试再次进行重拨: ' + retryCount);
+            await reconnectPPP();   // 执行重拨
+            await new Promise(resolve => setTimeout(resolve, 3500)); // 等待 3.5 秒钟
+            currentIPv4 = await getIPv4();
+        }
+
         if (currentIPv4 === previousIPv4) {
             // IPv4地址没有变化
-            if (retryCount < 3) {
-                console.log('重拨未能更换IPv4，尝试再次进行重拨: ', retryCount);
-                await s.reply('重拨未能更换IPv4，尝试再次进行重拨: ' + retryCount);
-                await reconnectPPP();   // 执行重拨
-                await new Promise(resolve => setTimeout(resolve, 2000)); // 等待 2 秒钟
-                currentIPv4 = await getIPv4();
-                retryCount++;
-            } else {
-                console.log('三次重拨无法更换IP，执行光猫重启');
-                await s.reply('三次重拨无法更换IP，执行光猫重启');
-                // 光猫重启
-                rebootModemFlag = 1;
-            }
+            console.log('三次重拨无法更换IP，执行光猫重启');
+            await s.reply('三次重拨无法更换IP，执行光猫重启');
+            // 光猫重启
+            rebootModemFlag = 1;
         } else {
             // IPv4地址有变化，结束脚本
             const maskedCurrentIP = maskIPv4(currentIPv4);
-            console.log('新的IPv4: ' + maskedCurrentIP);
+            console.log('新的IPv4: ' + currentIPv4);
             await s.reply('新的IPv4: ' + maskedCurrentIP);
         }
     } catch (error) {
         console.error(error);
-        await s.reply(error);
         if (error.startsWith('SSH连接失败')) {
             // 估计是参数设置有误 应当检查SSH设置
             console.log('请检查SSH设置')
             await s.reply('请检查SSH设置')
-        } else if (error === '无法获取PPPOE拨号的IPv4地址') {
+        } else if (error.startsWith('无法获取PPPOE拨号的IPv4地址')) {
             // PPPOE拨号之后没有获得到新的ip 应当是olt资源限制，此时应当重启光猫
             console.log('OLT限制，重启光猫')
             await s.reply('OLT限制，重启光猫')
