@@ -21,20 +21,15 @@ const host = '192.xx.x.x';
 const port = 22;
 const username = 'ddd';
 const password = 'ddd';
-const cmd_get_ipv4 = '/ip address print where interface=pppoe-out1';
+const cmdGetIPv4 = '/ip address print where interface=pppoe-out1';
 
-let current_ipv4 = '';
+let currentIPv4 = '';
 
 module.exports = async s => {
     try {
         await s.reply('正在获取当前IP');
-        current_ipv4 = await getIPv4();
-        const ipParts = current_ipv4.split('.'); // 使用点号分隔符将地址部分拆分为四个部分
-        maskedIP = '';
-        if (ipParts.length === 4) {
-            ipParts[2] = 'x'; // 将第三个部分替换为 'x' 或其他占位符
-            maskedIP = ipParts.join('.'); // 重新组合为掩码后的 IPv4 地址
-        }
+        currentIPv4 = await getIPv4();
+        const maskedIP = maskIPv4(currentIPv4);
         await s.reply({ msg: '当前IP为: ' + maskedIP, dontEdit: false });
     } catch (error) {
         console.error(error);
@@ -42,11 +37,21 @@ module.exports = async s => {
     }
 }
 
+function maskIPv4(rawIPv4) {
+    const ipParts = rawIPv4.split('.'); // 使用点号分隔符将地址部分拆分为四个部分
+    let maskedIP = '';
+    if (ipParts.length === 4) {
+        ipParts[1] = 'x'; // 将第二个部分替换为 'x' 或其他占位符
+        maskedIP = ipParts.join('.'); // 重新组合为掩码后的 IPv4 地址
+    }
+    return maskedIP;
+}
+
 async function getIPv4() {
     return new Promise((resolve, reject) => {
         conn = new Client();
         conn.on('ready', () => {
-            conn.exec(cmd_get_ipv4, (err, stream) => {
+            conn.exec(cmdGetIPv4, (err, stream) => {
                 if (err) {
                     reject('SSH连接失败: ' + err);
                     return;
