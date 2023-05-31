@@ -44,7 +44,7 @@ module.exports = async s => {
         await s.reply('当前PPPOE拨号获取到的IPv4地址: ' + maskedPreviousIP);
         sysMethod.push({
             platform: 'HumanTG',
-            groupId: -logGroupId,// fixme: 修改为你的群组ID
+            groupId: logGroupId,// fixme: 修改为你的群组ID
             msg: 'RouterOS重拨前IPv4地址:\n' + previousIPv4,
             type: 'text',
         });
@@ -55,7 +55,7 @@ module.exports = async s => {
         await reconnectPPP();
         console.log('PPPOE重拨命令执行完毕');
 
-
+        await new Promise(resolve => setTimeout(resolve, 3500)); // 等待 3.5 秒钟
         console.log('正在获取重拨后的IPv4地址');
         await s.reply('正在获取重拨后的IPv4地址');
         // 获取重拨后的IPv4地址
@@ -71,7 +71,22 @@ module.exports = async s => {
         });
     } catch (error) {
         console.error(error);
-        await s.reply(error);
+        if (error.startsWith('SSH连接失败')) {
+            // 估计是参数设置有误 应当检查SSH设置
+            console.log('请检查SSH设置')
+            await s.reply('请检查SSH设置')
+        } else if (error.startsWith('无法获取PPPOE拨号的IPv4地址')) {
+            // PPPOE拨号之后没有获得到新的ip 应当是olt资源限制，此时应当重启光猫
+            console.log('OLT限制，重启光猫')
+            await s.reply('OLT限制，重启光猫')
+        } else if (error.startsWith('获取IPv4地址时发生错误')) {
+            console.log('我也不太清楚为啥');
+            await s.reply('我也不太清楚为啥');
+        } else {
+            console.log('未知错误')
+            await s.reply('未知错误')
+        }
+
     }
 }
 
