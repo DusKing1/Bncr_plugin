@@ -1,6 +1,6 @@
 /**作者
  * @author DusKing
- * @name RouterOS
+ * @name ASUS Router
  * @origin 大灰机
  * @version 1.0.0
  * @description ASUS重拨 监控版
@@ -35,8 +35,8 @@ let currentIPv4 = '';    // 本次获取到的IPv4地址
 
 module.exports = async s => {
     try {
-        console.log('RouterOS重拨启动中，正在获取当前IP');
-        await s.reply('RouterOS重拨启动中，正在获取当前IP');
+        console.log('ASUS重拨启动中，正在获取当前IP');
+        await s.reply('ASUS重拨启动中，正在获取当前IP');
         // 首先获取当前IPv4地址
         previousIPv4 = await getIPv4();
         const maskedPreviousIP = maskIPv4(previousIPv4);
@@ -45,7 +45,7 @@ module.exports = async s => {
         sysMethod.push({
             platform: 'HumanTG',
             groupId: logGroupId,// fixme: 修改为你的群组ID
-            msg: '触发RouterOS重拨!\n当前IPv4:\n' + previousIPv4,
+            msg: '触发ASUS重拨!\n当前IPv4:\n' + previousIPv4,
             type: 'text',
         });
 
@@ -66,7 +66,7 @@ module.exports = async s => {
         sysMethod.push({
             platform: 'HumanTG',
             groupId: logGroupId,// fixme: 修改为你的群组ID
-            msg: 'RouterOS重拨完成!\nIPv4地址:\n' + currentIPv4,
+            msg: 'ASUS重拨完成!\nIPv4地址:\n' + currentIPv4,
             type: 'text',
         });
     } catch (error) {
