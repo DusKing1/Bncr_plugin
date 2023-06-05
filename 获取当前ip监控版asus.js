@@ -75,7 +75,7 @@ async function getIPv4() {
     return new Promise((resolve, reject) => {
         conn = new Client();
         conn.on('ready', () => {
-            conn.exec('nvram get wan0_ipaddr', (err, stream) => {
+            conn.exec(cmdGetIPv4, (err, stream) => {
                 if (err) {
                     reject('SSH连接失败: ' + err);
                     return;
