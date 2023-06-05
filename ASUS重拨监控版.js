@@ -5,7 +5,7 @@
  * @version 1.0.0
  * @description ASUS重拨 监控版
  * @platform tgBot qq ssh HumanTG wxQianxun wxXyo
- * @rule ros重拨
+ * @rule asus重拨
  * @admin true
  * @disable false
  */
