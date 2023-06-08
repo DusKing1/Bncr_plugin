@@ -2,7 +2,7 @@
  * @author DusKing
  * @name ASUS Router
  * @origin 大灰机
- * @version 1.0.0
+ * @version 1.0.1
  * @description ASUS重拨 监控版
  * @platform tgBot qq ssh HumanTG wxQianxun wxXyo
  * @rule asus重拨
@@ -15,7 +15,10 @@
 // 1. 获取当前ip，并发送至ip日志群
 // 2. 重拨，并在重拨后获取当前ip，并发送至ip日志群
 
-
+// Change log
+// 1.0.0    基本实现所有功能
+// 1.0.1    执行完所有命令之后自行内联重启无界命令，避免重启后无法连接，
+//          但存在无界容器彻底停机的风险
 
 
 
@@ -69,6 +72,7 @@ module.exports = async s => {
             msg: 'ASUS重拨完成!\nIPv4地址:\n' + currentIPv4,
             type: 'text',
         });
+        sysMethod.inline(`重启`);
     } catch (error) {
         console.error(error);
         if (error.startsWith('SSH连接失败')) {
